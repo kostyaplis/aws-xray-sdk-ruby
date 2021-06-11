@@ -1,4 +1,5 @@
 require 'active_record'
+require 'aws-xray-sdk/logger'
 
 module XRay
   module Rails
@@ -9,13 +10,16 @@ module XRay
                       'ActiveRecord::InternalMetadata Load'].freeze
         DB_TYPE_MAPPING = {
           mysql2: 'MySQL',
-          postgresql: 'PostgreSQL'
+          postgresql: 'PostgreSQL',
+          postgis: 'PostgreSQL'
         }.freeze
 
         def record(transaction)
           payload = transaction.payload
           pool, conn = get_pool_n_conn(payload[:connection_id])
-
+          Logging.logger.debug(payload)
+          Logging.logger.debug(pool)
+          Logging.logger.debug(conn)
           return if IGNORE_OPS.include?(payload[:name]) || pool.nil? || conn.nil?
           # The spec notation is Rails < 6.1, later this can be found in the db_config
           db_config = if pool.respond_to?(:spec)
@@ -70,5 +74,6 @@ end
 ActiveSupport::Notifications.subscribe('sql.active_record') do |*args|
   # We need the full event which has all the timing info
   transaction = ActiveSupport::Notifications::Event.new(*args)
+  Logging.logger.debug(conn)
   XRay::Rails::ActiveRecord.record(transaction)
 end

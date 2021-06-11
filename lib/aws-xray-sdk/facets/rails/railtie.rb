@@ -1,5 +1,6 @@
 require 'aws-xray-sdk/facets/rack'
 require 'aws-xray-sdk/facets/rails/ex_middleware'
+require 'aws-xray-sdk/logger'
 
 module XRay
   # configure X-Ray instrumentation for rails framework
@@ -12,6 +13,8 @@ module XRay
     end
 
     config.after_initialize do |app|
+      Logging.logger.debug("Init")
+      Logging.logger.debug(app)
       if app.config.respond_to?('xray')
         options = app.config.xray
         require 'aws-xray-sdk/facets/rails/active_record' if options[:active_record]
