@@ -5,6 +5,7 @@ require 'aws-xray-sdk/logger'
 module XRay
   # configure X-Ray instrumentation for rails framework
   class Railtie < ::Rails::Railtie
+    include Logging
     RAILS_OPTIONS = %I[active_record].freeze
 
     initializer("aws-xray-sdk.rack_middleware") do |app|

@@ -6,6 +6,7 @@ module XRay
     # Recording Rails database transactions as subsegments.
     module ActiveRecord
       class << self
+        include Logging
         IGNORE_OPS = ['SCHEMA', 'ActiveRecord::SchemaMigration Load',
                       'ActiveRecord::InternalMetadata Load'].freeze
         DB_TYPE_MAPPING = {
