@@ -25,8 +25,9 @@ module XRay
       return nil unless entity.sampled
       begin
         payload = %(#{@@protocol_header}#{@@protocol_delimiter}#{entity.to_json})
-        logger.debug %(sending payload #{payload} to daemon at #{@address}.)
-        @socket.send payload, 0
+        # logger.debug %(sending payload #{payload} to daemon at #{@address}.)
+        puts %(sending payload #{payload} to daemon at #{@address}.)
+        #@socket.send payload, 0
       rescue StandardError => e
         logger.warn %(failed to send payload due to #{e.message})
       end
@@ -34,7 +35,7 @@ module XRay
 
     def daemon_config=(v)
       @address = %(#{v.udp_ip}:#{v.udp_port})
-      @socket.connect(v.udp_ip, v.udp_port)
+      # @socket.connect(v.udp_ip, v.udp_port)
     rescue StandardError
       raise InvalidDaemonAddressError, %(Invalid X-Ray daemon address specified: #{v}.)
     end

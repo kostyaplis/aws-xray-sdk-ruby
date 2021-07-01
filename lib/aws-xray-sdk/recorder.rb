@@ -53,6 +53,7 @@ module XRay
       return unless segment
       segment.close end_time: end_time
       context.clear!
+      puts("Sending from end_segment")
       emitter.send_entity entity: segment if segment.ready_to_send?
     end
 
@@ -100,6 +101,7 @@ module XRay
       # If not, stream subsegments when threshold is reached.
       segment = entity.segment
       if segment.ready_to_send?
+        puts("Sending from end_subsegment")
         emitter.send_entity entity: segment
       elsif streamer.eligible? segment: segment
         streamer.stream_subsegments root: segment, emitter: emitter

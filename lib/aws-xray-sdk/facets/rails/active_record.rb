@@ -1,12 +1,10 @@
 require 'active_record'
-require 'aws-xray-sdk/logger'
 
 module XRay
   module Rails
     # Recording Rails database transactions as subsegments.
     module ActiveRecord
       class << self
-        include Logging
         IGNORE_OPS = ['SCHEMA', 'ActiveRecord::SchemaMigration Load',
                       'ActiveRecord::InternalMetadata Load'].freeze
         DB_TYPE_MAPPING = {
@@ -18,9 +16,8 @@ module XRay
         def record(transaction)
           payload = transaction.payload
           pool, conn = get_pool_n_conn(payload[:connection_id])
-          Logging.logger.debug(payload)
-          Logging.logger.debug(pool)
-          Logging.logger.debug(conn)
+          puts(payload)
+          puts(pool)
           return if IGNORE_OPS.include?(payload[:name]) || pool.nil? || conn.nil?
           # The spec notation is Rails < 6.1, later this can be found in the db_config
           db_config = if pool.respond_to?(:spec)
@@ -71,10 +68,11 @@ module XRay
   end
 end
 
+puts("I'm there")
 # Add a hook on database transactions using Rails instrumentation API
 ActiveSupport::Notifications.subscribe('sql.active_record') do |*args|
   # We need the full event which has all the timing info
+  puts("I'm here")
   transaction = ActiveSupport::Notifications::Event.new(*args)
-  Logging.logger.debug(conn)
   XRay::Rails::ActiveRecord.record(transaction)
 end
